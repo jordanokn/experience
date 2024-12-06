@@ -20,9 +20,6 @@ def clean_file_comments(
     file: str,
     all_comments: bool = True
 ):
-    if not file:
-        raise ValueError("Option --file required")
-    
     with open(file, "r", encoding='utf-8') as f:
         lines = f.readlines()
 
