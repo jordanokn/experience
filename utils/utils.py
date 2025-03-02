@@ -1,13 +1,14 @@
-from collections import UserList, namedtuple
 import json
-from uuid import UUID
-from datetime import datetime, date
-import re
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
-import subprocess
 import logging
+import re
+import subprocess
+from collections import UserList, namedtuple
+from datetime import date, datetime
+from uuid import UUID
+
 import pytz
+from watchdog.events import FileSystemEventHandler
+from watchdog.observers import Observer
 
 
 class CircularList(UserList):
@@ -32,7 +33,7 @@ class CircularList(UserList):
         'VOLVO'
         >>> empty_list = CircularList([])
         >>> next(empty_list)
-        
+
         """
         if not self.data:
             return None
@@ -83,6 +84,7 @@ class Encoder(json.JSONEncoder):
         ... }, cls=Encoder)
         '{"timestamp": "2023-10-05 12:30:45", "test_uuid": "d736034e-2239-4fc6-a1c9-4ba9df20888f"}'
     """
+
     def default(self, o):
         if isinstance(o, (datetime, date, UUID)):
             return str(o)
@@ -90,6 +92,7 @@ class Encoder(json.JSONEncoder):
 
 
 Range = namedtuple("Range", ["min_", "max_"])
+
 
 def get_range(field: str | None) -> Range:
     """
@@ -131,6 +134,7 @@ def get_range(field: str | None) -> Range:
     ]
 
     return Range(range_arr[0], range_arr[1])
+
 
 def replace_key_recursively(data, target_key, new_value):
     """
@@ -197,6 +201,7 @@ def split_array(arr: list, chunk_size: int) -> list[list]:
         [[1, 2, 3, 4, 5]]
     """
     return [arr[i : i + chunk_size] for i in range(0, len(arr), chunk_size)]
+
 
 def convert_utc_to_local(
     datetime_str_utc: str | datetime, timezone_str: str, only_time: bool = True
@@ -299,7 +304,9 @@ class ScriptWatcher:
         self.observer.schedule(self.event_handler, path=self.watch_path, recursive=True)
         self.observer.start()
         self.restart_script()  # Start the script initially
-        self.logger.info(f"Watching for changes in '{self.watch_path}' and running '{self.script_path}'...")
+        self.logger.info(
+            f"Watching for changes in '{self.watch_path}' and running '{self.script_path}'..."
+        )
 
     def stop(self):
         """Stop watching for file changes and terminate the script."""
@@ -310,9 +317,11 @@ class ScriptWatcher:
             self.process.wait()
         self.logger.info("Stopped watching for changes.")
 
-from typing import Type, TypeVar, Generic
-from pydantic import BaseModel
+
 import json
+from typing import Generic, Type, TypeVar
+
+from pydantic import BaseModel
 
 ConfigModel = TypeVar("ConfigModel", bound=BaseModel)
 
@@ -404,7 +413,9 @@ class SingletonConfigLoader(ConfigLoader, Generic[ConfigModel]):
             cls._instance = super(SingletonConfigLoader, cls).__new__(cls)
         return cls._instance
 
-    def __init__(self, model_class: Type[ConfigModel] | None = None, config_path: str = " "):
+    def __init__(
+        self, model_class: Type[ConfigModel] | None = None, config_path: str = " "
+    ):
         """
         Initializes the SingletonConfigLoader with the specified model class and configuration file path.
 
@@ -414,7 +425,9 @@ class SingletonConfigLoader(ConfigLoader, Generic[ConfigModel]):
         """
         if not getattr(self, "_initialized", False):
             if model_class is None:
-                raise ValueError("Model class must be provided for the first initialization.")
+                raise ValueError(
+                    "Model class must be provided for the first initialization."
+                )
             super().__init__(model_class, config_path)
             self._initialized = True
             self._model = None
@@ -481,4 +494,5 @@ if __name__ == "__main__":
     doctest.testmod()
 
     import os
+
     os.remove("sample_config.json")
